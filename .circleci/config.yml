@@ -6,10 +6,8 @@ jobs:
       - image: cimg/openjdk:17.0
 
     steps:
-      # Checkout the code as the first step.
       - checkout
 
-      # Use mvn clean and package as the standard maven build phase
       - run:
           name: Build
           command: mvn -B -DskipTests clean package
@@ -22,6 +20,10 @@ jobs:
       - run:
           name: UnitTestUserService
           command: mvn -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
+
+      # Store test results
+      - store_test_results:
+          path: target/surefire-reports
 
   deployment:
     docker:
