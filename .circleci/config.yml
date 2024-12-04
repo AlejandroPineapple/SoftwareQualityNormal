@@ -4,15 +4,27 @@ jobs:
   build-and-test:
     docker:
       - image: cimg/openjdk:17.0
+        environment:
+          - CHROME_BIN=/usr/bin/google-chrome
+          - CHROMEDRIVER_BIN=/usr/bin/chromedriver
 
     steps:
       - checkout
 
+      # Instalar Chrome y ChromeDriver
+      - run:
+          name: Install Chrome and ChromeDriver
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y google-chrome-stable
+            sudo apt-get install -y chromium-chromedriver
+
+      # Construir la aplicación
       - run:
           name: Build
           command: mvn -B -DskipTests clean package
 
-      # Run your tests
+      # Ejecutar pruebas específicas
       - run:
           name: TestCalculadora
           command: mvn -Dtest=Calculadora* test
