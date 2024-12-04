@@ -23,21 +23,22 @@ jobs:
       - run:
           name: UnitTestUserSevice
           command: mvn -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
-    
-  test:
+  
+  build:
+
     docker:
-        - image: cimg/openjdk:17.0
+      - image: cimg/openjdk:17.0
 
-      steps:
-        - checkout
+    steps:
+      - checkout
 
-        - run:
-            name: TestCalculadora
-            command: mvn -Dtest=Calculadora* test
+      - run:
+          name: TestCalculadora
+          command: mvn -Dtest=Calculadora* test
 
-        - run:
-            name: UnitTestUserSevice 
-            command: mvn -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
+      - run:
+          name: UnitTestUserSevice 
+          command: mvn -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
   
   deployment:
     docker:
