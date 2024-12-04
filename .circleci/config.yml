@@ -1,9 +1,7 @@
 version: 2.1
 
 jobs:
-
-  build:
-
+  build-and-test:
     docker:
       - image: cimg/openjdk:17.0
 
@@ -15,31 +13,16 @@ jobs:
       - run:
           name: Build
           command: mvn -B -DskipTests clean package
-      # Then run your tests!
+
+      # Run your tests
       - run:
           name: TestCalculadora
           command: mvn -Dtest=Calculadora* test
 
       - run:
-          name: UnitTestUserSevice
+          name: UnitTestUserService
           command: mvn -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
-  
-  build:
 
-    docker:
-      - image: cimg/openjdk:17.0
-
-    steps:
-      - checkout
-
-      - run:
-          name: TestCalculadora
-          command: mvn -Dtest=Calculadora* test
-
-      - run:
-          name: UnitTestUserSevice 
-          command: mvn -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
-  
   deployment:
     docker:
       - image: cimg/openjdk:17.0
@@ -49,12 +32,11 @@ jobs:
 workflows:
   build_and_test:
     jobs:
-      - build
-      - test:
-          requires:
-            - build
+      - build-and-test
       - deployment:
-        filters:
-          branches:
-            only:
-              - main
+          requires:
+            - build-and-test
+          filters:
+            branches:
+              only:
+                - main
