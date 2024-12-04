@@ -4,26 +4,24 @@ jobs:
   build-and-test:
     docker:
       - image: cimg/openjdk:17.0
-
     steps:
       - checkout
+      - setup_remote_docker:
+          version: 20.10.7
+          docker_layer_caching: true
 
       - run:
-          name: Build
-          command: mvn -B -DskipTests clean package
+          name: Start Docker Compose
+          command: docker-compose -f docker-compose.yml up -d
 
-      # Run your tests
+      # Ejecutar las pruebas
       - run:
-          name: TestCalculadora
-          command: mvn -Dtest=Calculadora* test
-
-      - run:
-          name: UnitTestUserService
-          command: mvn -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
+          name: Run Integration Tests
+          command: mvn -Dtest=UserServiceTest test
 
       - run:
-          name: IntegrationTestUserService
-          command: mvn -Dtest=UserServiceTest -Dsurefire.printSummary=true test
+          name: Stop Docker Compose
+          command: docker-compose down
 
   deployment:
     docker:

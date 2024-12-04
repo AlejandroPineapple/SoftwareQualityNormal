@@ -17,7 +17,7 @@ public class DAOUser implements IDAOUser {
 			// Establish the driver connector
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			// Set the URI for connecting the MySql database
-			con = DriverManager.getConnection("jdbc:mysql://localhost:3307/calidad", "root", "123456");
+			con = DriverManager.getConnection("jdbc:mysql://mysql:3306/calidadSoftware2024", "root", "123456");
 		} catch (Exception e) {
 			System.out.println(e);
 		}
@@ -39,7 +39,7 @@ public class DAOUser implements IDAOUser {
 		// Declare statement query to run
 		PreparedStatement preparedStatement;
 		preparedStatement = connection
-				.prepareStatement("insert INTO users(name, email, password, isLogged) values(?,?,?,?)");
+				.prepareStatement("insert INTO usuariosCool(name, email, password, isLogged) values(?,?,?,?)");
 		// Set the values to match in the ? query
 		preparedStatement.setString(1, user.getName());
 		preparedStatement.setString(2, user.getEmail());
