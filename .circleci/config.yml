@@ -3,25 +3,22 @@ version: 2.1
 jobs:
   build-and-test:
     docker:
-      - image: cimg/openjdk:17.0
+      - image: cimg/openjdk:17.0  # Imagen sin especificar versión de Docker
+      - image: mysql
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.7
-          docker_layer_caching: true
-
       - run:
-          name: Start Docker Compose
-          command: docker-compose -f docker-compose.yml up -d
-
-      # Ejecutar las pruebas
+          name: Build
+          command: mvn -B -DskipTests clean package
       - run:
-          name: Run Integration Tests
-          command: mvn -Dtest=UserServiceTest test
-
+          name: TestCalculadora
+          command: mvn -Dtest=Calculadora* test
       - run:
-          name: Stop Docker Compose
-          command: docker-compose down
+          name: UnitTestUserService
+          command: mvn -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
+      - run:
+          name: IntegrationTestUserService
+          command: mvn -Dtest=UserServiceTest -Dsurefire.printSummary=true test
 
   deployment:
     docker:
