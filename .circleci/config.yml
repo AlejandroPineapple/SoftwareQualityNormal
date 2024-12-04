@@ -30,7 +30,7 @@ jobs:
           command: mvn -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
       - run:
           name: IntegrationTestUserService
-          command: mvn -Dtest=UserServiceTest -Dsurefire.printSummary=true test
+          command: mvn -X -Dtest=UserServiceTest -Dsurefire.printSummary=true test
 
   deployment:
     docker:
