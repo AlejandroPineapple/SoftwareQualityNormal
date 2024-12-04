@@ -3,17 +3,19 @@ version: 2.1
 jobs:
   build-and-test:
     docker:
-      - image: cimg/openjdk:17.0  
+      - image: cimg/openjdk:17.0 
       - image: mysql:8.0
         environment:
           MYSQL_ROOT_PASSWORD: root_password
     steps:
       - checkout
+
       - run:
           name: Wait for MySQL to be ready
           command: |
-            until mysql -h127.0.0.1 -uroot -proot_password -e "SELECT 1"; do
-              echo "Waiting for MySQL..."
+            echo "Waiting for MySQL to be ready..."
+            until nc -z -v -w30 127.0.0.1 3306; do
+              echo "Waiting for MySQL connection..."
               sleep 5
             done
 
