@@ -4,7 +4,7 @@ services:
   app:
     build:
       context: .
-    image: tu-imagen-java
+    image: cimg/openjdk:17.0 
     environment:
       - DB_HOST=mysql
       - DB_PORT=3306
@@ -25,6 +25,8 @@ services:
       MYSQL_DATABASE: calidadSoftware2024
     ports:
       - "3307:3306"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - app_network
 
