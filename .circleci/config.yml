@@ -4,9 +4,10 @@ jobs:
   build-and-test:
     docker:
       - image: cimg/openjdk:17.0 
-      - image: mysql:8.0
+      - image: circleci/mysql:8.0
         environment:
           MYSQL_ROOT_PASSWORD: root_password
+          MYSQL_DATABASE: calidadSoftware2024
     steps:
       - checkout
 
@@ -30,7 +31,7 @@ jobs:
           command: mvn -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
       - run:
           name: IntegrationTestUserService
-          command: mvn -X -Dtest=UserServiceTest -Dsurefire.printSummary=true test
+          command: mvn -Dtest=UserServiceTest -Dsurefire.printSummary=true test
 
   deployment:
     docker:
