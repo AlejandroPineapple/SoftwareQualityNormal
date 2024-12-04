@@ -4,7 +4,6 @@ jobs:
   build-and-test:
     docker:
       - image: cimg/openjdk:17.0
-      - image: circleci/mysql:8.3
 
     steps:
       - checkout
