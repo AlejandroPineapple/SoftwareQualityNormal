@@ -21,8 +21,8 @@ jobs:
           command: mvn -Dtest=Calculadora* test
 
       - run:
-          name: UnitTestLoginSevice
-          command: mvn -Dtest=LoginServiceUnitTest -Dsurefire.printSummary=true test
+          name: UnitTestUserSevice
+          command: mvn -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
     
   deployment:
     docker:
