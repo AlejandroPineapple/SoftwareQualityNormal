@@ -4,37 +4,39 @@ jobs:
   build-and-test:
     docker:
       - image: cimg/openjdk:17.0
-        environment:
-          - CHROME_BIN=/usr/bin/google-chrome
-          - CHROMEDRIVER_BIN=/usr/bin/chromedriver
 
     steps:
       - checkout
-
-      # Instalar Chrome y ChromeDriver
+      
+      # Instalar dependencias necesarias
       - run:
-          name: Install Chrome and ChromeDriver
+          name: Instalar Chrome y sus dependencias
           command: |
             sudo apt-get update
+            sudo apt-get install -y wget gnupg2
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+            sudo apt-get update
             sudo apt-get install -y google-chrome-stable
-            sudo apt-get install -y chromium-chromedriver
 
-      # Construir la aplicación
+      # Instalar WebDriver para Chrome (chromedriver)
+      - run:
+          name: Instalar ChromeDriver
+          command: |
+            sudo apt-get install -y unzip
+            wget -N https://chromedriver.storage.googleapis.com/$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE)/chromedriver_linux64.zip
+            unzip chromedriver_linux64.zip
+            sudo mv chromedriver /usr/local/bin/
+            sudo chmod +x /usr/local/bin/chromedriver
+
+      # Construir el proyecto
       - run:
           name: Build
           command: mvn -B -DskipTests clean package
 
-      # Ejecutar pruebas específicas
+      # Ejecutar pruebas con Selenium
       - run:
-          name: TestCalculadora
-          command: mvn -Dtest=Calculadora* test
-
-      - run:
-          name: UnitTestUserService
-          command: mvn -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
-
-      - run:
-          name: FunctionalTestCRUDService
+          name: Selenium Tests
           command: mvn -Dtest=CRUDSeleniumTest -Dsurefire.printSummary=true test
 
   deployment:
