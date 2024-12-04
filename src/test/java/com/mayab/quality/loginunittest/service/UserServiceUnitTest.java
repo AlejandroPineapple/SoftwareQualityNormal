@@ -22,7 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class UserServiceTest {
+class UserServiceUnitTest {
 	
 	private UserService service;
 	private IDAOUser dao;
