@@ -4,7 +4,9 @@ jobs:
   build-and-test:
     docker:
       - image: cimg/openjdk:17.0  # Imagen sin especificar versión de Docker
-      - image: mysql
+      - image: mysql:8.0
+        environment:
+          MYSQL_ROOT_PASSWORD: root_password
     steps:
       - checkout
       - run:
