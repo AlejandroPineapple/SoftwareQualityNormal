@@ -24,11 +24,11 @@ jobs:
           name: TestLoginSevice
           command: mvn -Dtest=LoginService* test
     
-    deployment:
-      docker:
-        - image: cimg/openjdk:17.0
-      steps:
-        - run: echo "Deploying... deploy done"
+  deployment:
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - run: echo "Deploying... deploy done"
 
 workflows:
   sample: 
