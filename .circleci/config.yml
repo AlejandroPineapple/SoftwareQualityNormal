@@ -19,11 +19,7 @@ jobs:
 
       - run:
           name: UnitTestUserService
-          command: mvn -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
-
-      # Store test results
-      - store_test_results:
-          path: target/surefire-reports
+          command: mvn -X -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
 
   deployment:
     docker:
