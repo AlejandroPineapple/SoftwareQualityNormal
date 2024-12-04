@@ -3,35 +3,28 @@ version: 2.1
 jobs:
   build-and-test:
     docker:
-      - image: cimg/openjdk:17.0 
-      - image: circleci/mysql:8.0
-        environment:
-          MYSQL_ROOT_PASSWORD: root_password
-          MYSQL_DATABASE: calidadSoftware2024
+      - image: cimg/openjdk:17.0
+      - image: circleci/mysql:8.3
+
     steps:
       - checkout
 
       - run:
-          name: Wait for MySQL to be ready
-          command: |
-            echo "Waiting for MySQL to be ready..."
-            until nc -z -v -w30 127.0.0.1 3306; do
-              echo "Waiting for MySQL connection..."
-              sleep 5
-            done
-
-      - run:
           name: Build
           command: mvn -B -DskipTests clean package
+
+      # Run your tests
       - run:
           name: TestCalculadora
           command: mvn -Dtest=Calculadora* test
+
       - run:
           name: UnitTestUserService
           command: mvn -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
+
       - run:
-          name: IntegrationTestUserService
-          command: mvn -Dtest=UserServiceTest -Dsurefire.printSummary=true test
+          name: FunctionalTestCRUDService
+          command: mvn -Dtest=CRUDSeleniumTest -Dsurefire.printSummary=true test
 
   deployment:
     docker:
