@@ -2,7 +2,7 @@ version: 2.1
 
 jobs:
 
-  build-and-test:
+  build:
 
     docker:
       - image: cimg/openjdk:17.0
@@ -24,6 +24,21 @@ jobs:
           name: UnitTestUserSevice
           command: mvn -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
     
+  test:
+    docker:
+        - image: cimg/openjdk:17.0
+
+      steps:
+        - checkout
+
+        - run:
+            name: TestCalculadora
+            command: mvn -Dtest=Calculadora* test
+
+        - run:
+            name: UnitTestUserSevice 
+            command: mvn -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
+  
   deployment:
     docker:
       - image: cimg/openjdk:17.0
@@ -31,7 +46,14 @@ jobs:
       - run: echo "Deploying... deploy done"
 
 workflows:
-  sample: 
+  build_and_test:
     jobs:
-      - build-and-test
-      - deployment
+      - build
+      - test:
+          requires:
+            - build
+      - deployment:
+        filters:
+          branches:
+            only:
+              - main
