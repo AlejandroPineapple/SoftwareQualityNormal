@@ -177,7 +177,7 @@ class UserServiceUnitTest {
 	    
 	    // verification
 	    assertThat(result.getPassword(), is(newPassword));
-	    assertThat(result.getName(), is("currentUser")); 
+	    assertThat(result.getName(), is("currentYoSoyElMEjorVIVAAAAA")); 
 	    assertThat(result.getEmail(), is("currentEmail"));
 	}
 
