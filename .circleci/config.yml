@@ -44,6 +44,10 @@ jobs:
           name: Unit Tests
           command: mvn -Dtest=UserServiceUnitTest -Dsurefire.printSummary=true test
 
+      - run:
+          name: Integration Tests
+          command: mvn -Dtest=UserServiceTest -Dsurefire.printSummary=true test
+
   deployment:
     docker:
       - image: cimg/openjdk:17.0
