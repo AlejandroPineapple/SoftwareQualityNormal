@@ -57,6 +57,7 @@ jobs:
 workflows:
   build_and_test:
     jobs:
+      - createMysql
       - build-and-test
       - deployment:
           requires:
