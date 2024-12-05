@@ -1,6 +1,7 @@
 package com.mayab.quality.integration;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import java.io.File;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.*;
@@ -9,12 +10,16 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.List;
 
+import org.dbunit.Assertion;
 import org.dbunit.DBTestCase;
 import org.dbunit.PropertiesBasedJdbcDatabaseTester;
+import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +40,7 @@ class UserServiceTest extends DBTestCase {
 	
 	public UserServiceTest() {
 		System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_DRIVER_CLASS,"com.mysql.cj.jdbc.Driver");
-		System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_CONNECTION_URL,"jdbc:mysql://127.0.0.1:3307/calidadSoftware2024");
+		System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_CONNECTION_URL,"jdbc:mysql://localhost:3307/calidadSoftware2024");
 		System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_USERNAME,"root");
 		System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_PASSWORD,"123456");	
 	
@@ -67,120 +72,237 @@ class UserServiceTest extends DBTestCase {
     {
         return new FlatXmlDataSetBuilder().build(new FileInputStream("src/resources/initDB.xml"));
     }
-
-	@Test
-	// Create New User HAPPY PATH (DONE)
-	void whenSaveUser_test() {
-		//Initialization
-        User newUser = new User("newUser1", "newEmail@email.com1", "newPassword1");
-
-		//Exercise
-		User result = service.createUser("newUser1", "newEmail@email.com1", "newPassword1");
-		
-		//verify
-		assertThat(result.getName(), is(newUser.getName()));
-		assertThat(result.getEmail(), is(newUser.getEmail()));
-		assertThat(result.getPassword(), is(newUser.getPassword()));
-	}
 	
 	@Test
-	// Create User when Email Taken (DONE)
-	void whenEmailTaken_test() {
-	    String email = "userTaken@email.com";
-	    
-	    User user1 = service.createUser("newUser", email, "ValidPassword123");
+    public void whenSaveUser_test() {
+        service.createUser("user5", "user5@email.com", "12345678");
 
-	    User user2 = service.createUser("userTaken", email, "ValidPassword321");
+        // Verify data in database
+        try {
+            // This is the full database
+            IDatabaseConnection conn = getConnection();
+            conn.getConfig().setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true);
+            IDataSet databaseDataSet = conn.createDataSet();
 
-	    assertNull(user2);
-	}
+            ITable actualTable = databaseDataSet.getTable("usuariosCool");
 
-	@Test
-	// Create User when Short Password (DONE)
-	void whenShortPassword_test() {
-	    String shortPassword = "corto";
+            // Read XML with the expected result
+            IDataSet expectedDataSet = new FlatXmlDataSetBuilder().build(new File("src/resources/addUser.xml"));
+            ITable expectedTable = expectedDataSet.getTable("usuariosCool");
 
-	    User result = service.createUser("userShort", "userShort@email.com", shortPassword);
+            Assertion.assertEquals(expectedTable, actualTable);
 
-	    assertNull(result);
-	}
+        } catch (Exception e) {
+            fail("Error in insert test: " + e.getMessage());
+        }
+    }
 	
 	@Test
-	// Create User when Long Password (DONE)
-	void whenLongPassword_test() {
-	    String longPassword = "daledaledalenopierdaselritmo1234";
-	    
-	    User result = service.createUser("userLong", "userLong@email.com", longPassword);
+    public void whenEmailTaken_test() {
+        // USERE SERVICE VERIFIES THAT EMAIL IS NOT ALREADY IN DB AND THAT THE PASSWORD
+        // IS THE APPROPIATE LENGTH
+        service.createUser("user4", "user4@email.com", "12345678");
 
-	    assertNull(result);
+        // Verify data in database
+        try {
+            // This is the full database
+            IDatabaseConnection conn = getConnection();
+            conn.getConfig().setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true);
+            IDataSet databaseDataSet = conn.createDataSet();
+
+            ITable actualTable = databaseDataSet.getTable("usuariosCool");
+
+            // Read XML with the expected result
+            IDataSet expectedDataSet = new FlatXmlDataSetBuilder()
+                    .build(new File("src/resources/emailTaken.xml"));
+            ITable expectedTable = expectedDataSet.getTable("usuariosCool");
+
+            Assertion.assertEquals(expectedTable, actualTable);
+
+        } catch (Exception e) {
+            fail("Error in insert test: " + e.getMessage());
+        }
+    }
+
+	@Test
+    public void whenShortAndLongPassword_test() {
+        service.createUser("user4", "user@email.com", "123456"); // short password
+        service.createUser("user4", "user@email.com", "01234567890123456789"); // long password
+
+        // Verify data in database
+        try {
+            // This is the full database
+            IDatabaseConnection conn = getConnection();
+            conn.getConfig().setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true);
+            IDataSet databaseDataSet = conn.createDataSet();
+
+            ITable actualTable = databaseDataSet.getTable("usuariosCool");
+
+            // Read XML with the expected result
+            IDataSet expectedDataSet = new FlatXmlDataSetBuilder()
+                    .build(new File("src/resources/passwordLength.xml"));
+            ITable expectedTable = expectedDataSet.getTable("usuariosCool");
+
+            Assertion.assertEquals(expectedTable, actualTable);
+
+        } catch (Exception e) {
+            fail("Error in insert test: " + e.getMessage());
+        }
+    }
+
+	@Test
+	public void testUpdateUser() {
+	    // Primero creamos el usuario para asegurarnos de que existe
+	    service.createUser("user5", "user5@email.com", "12345678");
+
+	    // Ahora actualizamos el usuario con un nuevo nombre de usuario y correo
+	    service.updateUser(new User("newName5", "newEmail5@email.com", "12345678"));
+
+	    // Verificar los datos en la base de datos
+	    try {
+	        // Esta es la conexión a la base de datos
+	        IDatabaseConnection conn = getConnection();
+	        conn.getConfig().setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true);
+	        IDataSet databaseDataSet = conn.createDataSet();
+
+	        ITable actualTable = databaseDataSet.getTable("usuariosCool");
+
+	        // Leer el XML con el resultado esperado
+	        IDataSet expectedDataSet = new FlatXmlDataSetBuilder()
+	                .build(new File("src/resources/updateUser.xml"));
+	        ITable expectedTable = expectedDataSet.getTable("usuariosCool");
+
+	        Assertion.assertEquals(expectedTable, actualTable);
+
+	    } catch (Exception e) {
+	        fail("Error en el test de actualización: " + e.getMessage());
+	    }
 	}
 
 	@Test
-	// Update User only Name and Password
-	void whenUpdateUser_test() {
-	    User createdUser = service.createUser("OldName", "oldemail@email.com", "oldpassword123");
+    public void testDeleteUser() {
+        service.deleteUser(new User(null, null, null));
 
-	    assertThat(createdUser.getName(), is("OldName"));
-	    assertThat(createdUser.getPassword(), is("oldpassword123"));
+        // Verify data in database
+        try {
+            // This is the full database
+            IDatabaseConnection conn = getConnection();
+            conn.getConfig().setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true);
+            IDataSet databaseDataSet = conn.createDataSet();
 
-	    createdUser.setName("NewName");
-	    createdUser.setPassword("newpassword123");
+            ITable actualTable = databaseDataSet.getTable("usuariosCool");
 
-	    User updatedUser = service.updateUser(createdUser);
+            // Read XML with the expected result
+            IDataSet expectedDataSet = new FlatXmlDataSetBuilder()
+                    .build(new File("src/resources/deleteUser.xml"));
+            ITable expectedTable = expectedDataSet.getTable("usuariosCool");
 
-	    assertThat(updatedUser.getName(), is("NewName"));
-	    assertThat(updatedUser.getPassword(), is("newpassword123"));
-	}
+            Assertion.assertEquals(expectedTable, actualTable);
 
-	@Test
-	// Delete User
-	void whenDeleteUser_test() {
-	    User newUser = new User("userDelete", "userDelete@email.com", "passDelete123");
-
-	    User createdUser = service.createUser(newUser.getName(), newUser.getEmail(), newUser.getPassword());
-	    assertNotNull(createdUser);
-
-	    boolean deleteResult = service.deleteUser(createdUser.getId());
-
-	    assertTrue(deleteResult);
-
-	    User deletedUser = dao.findById(createdUser.getId());
-	    assertNull(deletedUser);
-	}
+        } catch (Exception e) {
+            fail("Error in insert test: " + e.getMessage());
+        }
+    }
 
 	@Test
-	// Find All Users
-	void whenFindAllUsers_test() {
-	    service.createUser("user1", "user1@email.com", "password123");
-	    service.createUser("user2", "user2@email.com", "password456");
+    public void findAll_test() {
+        List<User> actualUsers = service.findAllUsers();
 
-	    List<User> users = service.findAllUsers();
+        // Verify data in database
+        try {
+            // This is the full database
+            IDatabaseConnection conn = getConnection();
+            conn.getConfig().setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true);
+            IDataSet databaseDataSet = conn.createDataSet();
 
-	    assertThat(users.size(), is(2));
-	}
+            ITable actualTable = databaseDataSet.getTable("usuariosCool");
+
+            // Read XML with the expected result
+            IDataSet expectedDataSet = new FlatXmlDataSetBuilder()
+                    .build(new File("src/resources/findAll.xml"));
+            ITable expectedTable = expectedDataSet.getTable("usuariosCool");
+
+            Assertion.assertEquals(expectedTable, actualTable);
+            assertEquals(actualUsers.size(), actualTable.getRowCount());
+
+            for (int i = 0; i < actualUsers.size(); i++) {
+                User user = actualUsers.get(i);
+
+                int expectedId = Integer.parseInt(expectedTable.getValue(i, "id").toString());
+                String expectedName = expectedTable.getValue(i, "name").toString();
+                String expectedPassword = expectedTable.getValue(i, "password").toString();
+                String expectedEmail = expectedTable.getValue(i, "email").toString();
+
+                assertEquals(expectedId, user.getId());
+                assertEquals(expectedName, user.getName());
+                assertEquals(expectedPassword, user.getPassword());
+                assertEquals(expectedEmail, user.getEmail());
+            }
+
+        } catch (Exception e) {
+            fail("Error in insert test: " + e.getMessage());
+        }
+    }
 	
 	@Test
-	// Find User by Email (DONE)
-	public void whenFindUserByEmail_test() { 
-	    String email = "useremail@email.com";
-	    String name = "useremail";
-	    String password = "password123";
-	    
-	    User createdUser = service.createUser(name, email, password);
-	    
-	    User foundUser = service.findUserByEmail(email);
-	    
-	    assertEquals(createdUser.getEmail(), foundUser.getEmail());
-	}
-	
+    public void whenFindByEmail_test() {
+        User userToFind = service.findUserByEmail("user1@email.com");
+
+        // Verify data in database
+        try {
+            // This is the full database
+            IDatabaseConnection conn = getConnection();
+            conn.getConfig().setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true);
+
+            // Read XML with the expected result
+            IDataSet expectedDataSet = new FlatXmlDataSetBuilder()
+                    .build(new File("src/resources/findbyEmail.xml"));
+            int expectedId = Integer.parseInt((String) expectedDataSet.getTable("usuariosCool").getValue(0, "id"));
+            String expectedName = (String) expectedDataSet.getTable("usuariosCool").getValue(0, "name");
+            String expectedEmail = (String) expectedDataSet.getTable("usuariosCool").getValue(0, "email");
+            String expectedPassword = (String) expectedDataSet.getTable("usuariosCool").getValue(0, "password");
+            assertEquals(userToFind.getId(), expectedId);
+            assertEquals(userToFind.getName(), expectedName);
+            assertEquals(userToFind.getEmail(), expectedEmail);
+            assertEquals(userToFind.getPassword(), expectedPassword);
+
+        } catch (Exception e) {
+            fail("Error in insert test: " + e.getMessage());
+        }
+    }
+
 	@Test
-	// Find User by ID (DONE)
-	void whenFindUserById_test() {
-	    User createdUser = service.createUser("userid", "userid@email.com", "password123");
+    public void testFindByID() {
+        User userToFind = service.findUserById(2);
 
-	    User result = service.findUserById(createdUser.getId());
+        // Verify data in database
+        try {
+            // This is the full database
+            IDatabaseConnection conn = getConnection();
+            conn.getConfig().setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true);
+            
+         // Read XML with the expected result
+            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("src/resources/findById.xml");
+            if (inputStream == null) {
+                fail("XML file not found in resources.");
+                return;
+            }
 
-	    assertThat(result.getId(), is(createdUser.getId()));
-	}
+            // Read XML with the expected result
+            IDataSet expectedDataSet = new FlatXmlDataSetBuilder()
+                    .build(new File("src/resources/findById.xml"));
+            int expectedId = Integer.parseInt((String) expectedDataSet.getTable("usuariosCool").getValue(0, "id"));
+            String expectedName = (String) expectedDataSet.getTable("usuariosCool").getValue(0, "name");
+            String expectedEmail = (String) expectedDataSet.getTable("usuariosCool").getValue(0, "email");
+            String expectedPassword = null; 
+            assertEquals(userToFind.getId(), expectedId);
+            assertEquals(userToFind.getName(), expectedName);
+            assertEquals(userToFind.getEmail(), expectedEmail);
+            assertEquals(userToFind.getPassword(), expectedPassword);
+
+        } catch (Exception e) {
+            fail("Error in insert test: " + e.getMessage());
+        }
+    }
 
 }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <usuariosCool id="1" name="user1" password="12345678" email="user1@email.com" isLogged="0"/>
+    <usuariosCool id="3" name="user3" password="12345678" email="user3@email.com" isLogged="0"/>
+    <usuariosCool id="4" name="user4" password="12345678" email="user4@email.com" isLogged="0"/>
+</dataset>
