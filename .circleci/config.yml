@@ -1,6 +1,33 @@
 version: 2.1
 
+executors:
+  maven:
+    docker:
+      - image: circleci/openjdk:11
+        environment:
+          MYSQL_HOST: 127.0.0.1
+          MYSQL_PORT: 3307
+          MYSQL_DATABASE: calidad
+          MYSQL_USER: root
+          MYSQL_PASSWORD: 123456
+
 jobs:
+
+  createMysql:
+    executor: maven
+    steps:
+      - checkout
+      - run:
+          name: Start MySQL
+          command: |
+            sudo service mysql start
+            mysql -u$MYSQL_USER -p$MYSQL_PASSWORD -e "CREATE DATABASE $MYSQL_DATABASE;"
+      - run:
+          name: Load Initial Data
+          command: |
+            mysql -u$MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DATABASE < src/resources/initDB.sql
+
+
   build-and-test:
     docker:
       - image: cimg/openjdk:17.0
