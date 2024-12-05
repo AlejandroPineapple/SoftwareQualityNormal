@@ -16,12 +16,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(OrderAnnotation.class)
 public class CRUDSeleniumTest {
 
-    private WebDriver driver;
+	private WebDriver driver;
+    private WebDriverWait wait;
 
     @BeforeEach
     public void setUp() {
         WebDriverManager.chromedriver().setup();
         driver = new ChromeDriver();
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // Explicit wait
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(60));
     }
 

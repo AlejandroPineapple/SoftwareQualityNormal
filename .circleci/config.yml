@@ -6,29 +6,29 @@ jobs:
       - image: cimg/openjdk:17.0
 
     steps:
-      - checkout
+      - checkout  # Checkout del código fuente
       
-      # Instalar dependencias necesarias
       - run:
-          name: Instalar Chrome y sus dependencias
+          name: Install dependencies
           command: |
             sudo apt-get update
-            sudo apt-get install -y wget gnupg2
-            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-            echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-            sudo apt-get update
-            sudo apt-get install -y google-chrome-stable
-
-      # Instalar WebDriver para Chrome (chromedriver)
-      - run:
-          name: Instalar ChromeDriver
-          command: |
+            sudo apt-get install -y wget
+            sudo apt-get install -y curl
             sudo apt-get install -y unzip
-            wget -N https://chromedriver.storage.googleapis.com/$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE)/chromedriver_linux64.zip
+            sudo apt-get install -y libx11-xcb1 libgbm-dev libxrandr2 libxss1 libasound2 libnss3
+      - run:
+          name: Install Chrome
+          command: |
+            wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+            sudo apt install -y ./google-chrome-stable_current_amd64.deb
+      - run:
+          name: Install ChromeDriver
+          command: |
+            CHROME_VERSION=$(google-chrome-stable --version | awk '{print $3}' | sed 's/\([0-9]*\)\.[0-9]*\.[0-9]*/\1/')
+            wget https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip
             unzip chromedriver_linux64.zip
             sudo mv chromedriver /usr/local/bin/
             sudo chmod +x /usr/local/bin/chromedriver
-
       # Construir el proyecto
       - run:
           name: Build
