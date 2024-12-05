@@ -1,39 +1,35 @@
 version: 2.1
 
-executors:
-  maven:
-    docker:
-      - image: circleci/openjdk:11
-        environment:
-          MYSQL_HOST: 127.0.0.1
-          MYSQL_PORT: 3307
-          MYSQL_DATABASE: calidad
-          MYSQL_USER: root
-          MYSQL_PASSWORD: 123456
-
 jobs:
 
-  createMysql:
-    executor: maven
+   build-and-test:
+    docker:
+      - image: cimg/openjdk:11.0
+      - image: mysql:5.7
+        environment:
+          MYSQL_ROOT_PASSWORD: 123456
+          MYSQL_DATABASE: calidad
+
     steps:
       - checkout
+
+      - restore_cache:
+          keys:
+            - maven-repo-{{ checksum "pom.xml" }}  
+      
       - run:
-          name: Start MySQL
-          command: |
-            sudo service mysql start
-            mysql -u$MYSQL_USER -p$MYSQL_PASSWORD -e "CREATE DATABASE $MYSQL_DATABASE;"
+          name: Install MySQL Client
+          command: sudo apt-get update && sudo apt-get install -y mysql-client
+
       - run:
-          name: Load Initial Data
+          name: Wait for MySQL
           command: |
-            mysql -u$MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DATABASE < src/resources/initDB.sql
-
-
-  build-and-test:
-    docker:
-      - image: cimg/openjdk:17.0
-
-    steps:
-      - checkout  # Checkout del código fuente
+            sleep 30
+            
+      - run:
+          name: Create database schema
+          command: |
+            mysql -h 127.0.0.1 -u root -p123456 calidad < src/resources/schema.sql
       
       - run:
           name: Build
@@ -57,7 +53,6 @@ jobs:
 workflows:
   build_and_test:
     jobs:
-      - createMysql
       - build-and-test
       - deployment:
           requires:
