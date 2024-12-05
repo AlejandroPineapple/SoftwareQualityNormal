@@ -25,16 +25,8 @@ jobs:
           command: sleep 30
 
       - run:
-          name: Debug MySQL Connection
-          command: mysql -h 127.0.0.1 -u root -p123456 -e "SHOW DATABASES;"
-
-      - run:
           name: Create database 
           command: mysql -h 127.0.0.1 -u root -p123456 calidad < src/resources/initDB.sql
-
-      - run:
-          name: Debug MySQL Connection
-          command: mysql -h 127.0.0.1 -u root -p123456 -e "SHOW TABLES;"
 
       - run:
           name: Build

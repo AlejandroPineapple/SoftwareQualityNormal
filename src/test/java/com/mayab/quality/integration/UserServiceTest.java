@@ -242,7 +242,7 @@ class UserServiceTest extends DBTestCase {
             conn.getConfig().setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true);
 
             IDataSet expectedDataSet = new FlatXmlDataSetBuilder()
-                    .build(new File("src/resources/findbyEmail.xml"));
+                    .build(new File("src/resources/findByEmail.xml"));
             int expectedId = Integer.parseInt((String) expectedDataSet.getTable("usuarios").getValue(0, "id"));
             String expectedName = (String) expectedDataSet.getTable("usuarios").getValue(0, "name");
             String expectedEmail = (String) expectedDataSet.getTable("usuarios").getValue(0, "email");
