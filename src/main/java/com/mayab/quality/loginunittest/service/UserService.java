@@ -53,15 +53,8 @@ public User findUserById(int id) {
     	return dao.updateUser(userOld);
     }
 
-    
-
     public boolean deleteUser(int id) {
     	return dao.deleteById(id);
     }
-
-	public void deleteUser(User user) {
-		// TODO Auto-generated method stub
-		
-	}
 
 }

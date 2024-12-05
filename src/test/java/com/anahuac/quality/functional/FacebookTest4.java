@@ -3,20 +3,24 @@ package com.anahuac.quality.functional;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.fail;
-
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.junit.*;
+import java.io.File;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 
+import java.io.IOException;
 import java.time.Duration;
 
 public class FacebookTest4 {
 
-    private WebDriver driver;
+    private static WebDriver driver;
     private String baseUrl;
     private boolean acceptNextAlert = true;
     private StringBuffer verificationErrors = new StringBuffer();
@@ -41,10 +45,12 @@ public class FacebookTest4 {
         driver.findElement(By.id("pass")).sendKeys("puppies");
         driver.findElement(By.name("login")).click();
         pause(5000);
+        takeScreenshot("FBScreenshot");
 
         String actualResult = driver.findElement(By.xpath("/html/body/div[1]/div[1]/div[1]/div/div[2]/div[2]/form/div/div[1]/div[2]")).getText();
         assertThat(actualResult, is("The email or mobile number you entered isn’t connected to an account. Find your account and log in."));
-        pause(3000);
+        pause(4000);
+        
 
     }
 
@@ -73,6 +79,13 @@ public class FacebookTest4 {
   	  catch(Exception e) {
   		  e.printStackTrace();
   	  }
+    }
+    
+    //Function to take screenshot
+    public static void takeScreenshot(String fileName) throws IOException {
+    	//creating instance of file
+    	File file =  ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+    	FileUtils.copyFile(file, new File("src/screenshots/" + fileName + ".jpeg"));
     }
     
     

@@ -20,9 +20,9 @@ public class App{
             String strPassword = "123456";
             con=DriverManager.getConnection(dbURL,strUserID,strPassword);
             System.out.println("Connected to the database.");
-            java.sql.Statement stmt=con.createStatement();
+            Statement stmt=(Statement) con.createStatement();
             System.out.println("Executing query");
-            ResultSet rs=stmt.executeQuery("SELECT * FROM usuarios");
+            ResultSet rs=((java.sql.Statement) stmt).executeQuery("SELECT * FROM usuarios");
             while(rs.next())
                 System.out.println(rs.getInt("1"));
             con.close();

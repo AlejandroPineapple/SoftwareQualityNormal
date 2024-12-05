@@ -1,13 +1,15 @@
 package com.anahuac.quality.functional;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -17,18 +19,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(OrderAnnotation.class)
 public class CRUDSeleniumTest {
 
-	private WebDriver driver;
-    private WebDriverWait wait;
+    private static WebDriver driver;
 
     @BeforeEach
     public void setUp() {
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--no-sandbox");
-        options.addArguments("--headless");
-        System.setProperty("webdriver.chrome.driver", "/ruta/a/tu/chromedriver");
-        driver = new ChromeDriver(options); 
         WebDriverManager.chromedriver().setup();
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // Explicit wait
+        driver = new ChromeDriver();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(60));
     }
 
@@ -45,12 +41,17 @@ public class CRUDSeleniumTest {
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Woah!'])[1]/following::button[1]")).click();
         Thread.sleep(2000);
         String result = driver.findElement(By.xpath("/html/body/div[3]/div/div[2]/form/div[4]/div/p")).getText();
+		
+        Thread.sleep(2000);
+        takeScreenshot("createRecordTest");
+        Thread.sleep(2000);
+
         assertEquals("Successfully added!", result);
     }
 
     @Test
     @Order(5)
-    public void CreateRecordWhenEmailTaken() throws InterruptedException {
+    public void CreateRecordWhenEmailTaken() throws InterruptedException, Exception {
         driver.get("https://mern-crud-mpfr.onrender.com/");
         driver.findElement(By.xpath("//div[@id='root']/div/div[2]/button")).click();
         driver.findElement(By.name("name")).sendKeys("Soyuncopion");
@@ -61,6 +62,12 @@ public class CRUDSeleniumTest {
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Woah!'])[1]/following::button[1]")).click();
         Thread.sleep(2000);
         String result = driver.findElement(By.xpath("/html/body/div[3]/div/div[2]/form/div[5]/div/p")).getText();
+        
+        Thread.sleep(2000);
+		takeScreenshot("emailTakenTest");
+		Thread.sleep(2000);
+
+        
         assertEquals("That email is already taken.", result);
     }
     
@@ -77,6 +84,10 @@ public class CRUDSeleniumTest {
         Thread.sleep(2000);
         String result = driver.findElement(By.xpath("/html/body/div[3]/div/div[2]/form/div[4]/div/p")).getText();
         
+        Thread.sleep(2000);
+		takeScreenshot("editTest");
+		Thread.sleep(2000);
+
         assertEquals("Successfully updated!", result);
     }
     
@@ -87,6 +98,10 @@ public class CRUDSeleniumTest {
     	String result = driver.findElement(By.xpath("/html/body/div[2]/div/div[2]/table/tbody/tr[1]/td[1]")).getText();
         String expected = "Kuromilover69";
         
+        Thread.sleep(2000);
+		takeScreenshot("findOneTest");
+		Thread.sleep(2000);
+
         assertEquals(expected, result);
     }
     
@@ -143,7 +158,11 @@ public class CRUDSeleniumTest {
         
         String result3 = driver.findElement(By.xpath("/html/body/div[2]/div/div[2]/table/tbody/tr[1]/td[1]")).getText();
         String expected3 = "Porfavorpongame10";
-        
+		
+        Thread.sleep(2000);
+        takeScreenshot("findAllTest");
+        Thread.sleep(2000);
+
         assertEquals(expected1, result1);
         assertEquals(expected2, result2);
         assertEquals(expected3, result3);
@@ -165,6 +184,10 @@ public class CRUDSeleniumTest {
         driver.get("https://mern-crud-mpfr.onrender.com/");
         String expected = driver.findElement(By.xpath("/html/body/div[2]/div/div[2]/table/tbody/tr[1]/td[1]")).getText();
         
+        Thread.sleep(2000);
+		takeScreenshot("deleteTest");
+		Thread.sleep(2000);
+
         assertNotEquals(expected, result);
     }
 
@@ -174,4 +197,10 @@ public class CRUDSeleniumTest {
             driver.quit();
         }
     }
+	  //Function to take screenshot
+	    public static void takeScreenshot(String fileName) throws IOException {
+	    	//creating instance of file
+	    	File file =  ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+	    	FileUtils.copyFile(file, new File("src/screenshots/" + fileName + ".jpeg"));
+	    }
 }
