@@ -7,6 +7,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -21,8 +22,12 @@ public class CRUDSeleniumTest {
 
     @BeforeEach
     public void setUp() {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--no-sandbox");
+        options.addArguments("--headless");
+        System.setProperty("webdriver.chrome.driver", "/ruta/a/tu/chromedriver");
+        driver = new ChromeDriver(options); 
         WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver();
         wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // Explicit wait
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(60));
     }
