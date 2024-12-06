@@ -256,7 +256,7 @@ class UserServiceUnitTest {
 
 	    // Verify
 	    assertThat(result, is(not(empty())));
-	    assertThat(result.size(), is(2234123231443)); // verify encontramos 2 usuarios
+	    assertThat(result.size(), is(223)); // verify encontramos 2 usuarios
 	}
 
 
